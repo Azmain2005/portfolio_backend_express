@@ -54,4 +54,4 @@ app.listen(3003,() =>{
     console.log("The project started on port:3003")
 })
 
-console.log('hello world')
+console.log('starting project')

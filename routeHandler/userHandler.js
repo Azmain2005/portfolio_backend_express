@@ -1,4 +1,6 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 const User = require("../schemas/userSchema");
 
@@ -23,10 +25,16 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// ✅ POST users
 router.post("/", async (req, res) => {
   try {
-    // Directly create user from request body
-    const newUser = new User(req.body);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const newUser = new User({
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword,
+    });
+
     await newUser.save();
 
     res.status(201).json({
@@ -42,7 +50,50 @@ router.post("/", async (req, res) => {
   }
 });
 
+// ✅ LOGIN user
+router.post("/login", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
 
+    if (user) {
+      const isValidPassword = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+
+      if (isValidPassword) {
+        // generate jwt token
+        const token = jwt.sign(
+          {
+            email: user.email,
+            userId: user._id,
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1h",
+          }
+        );
+
+        res.status(200).json({
+          access_token: token,
+          message: "LOGIN SUCCESSFUL",
+        });
+      } else {
+        res.status(401).json({
+          error: "Authentication failed",
+        });
+      }
+    } else {
+      res.status(401).json({
+        error: "Authentication failed",
+      });
+    }
+  } catch (err) {
+    res.status(401).json({
+      error: "Authentication failed",
+    });
+  }
+});
 
 
 // ✅ POST multiple users (batch insert)
