@@ -1,0 +1,4 @@
+1. this portfolio website doens't have any admin creating option. 
+2. So for this , we need to go 
+https://bcrypt-generator.com/
+and on any core round 10 or 12 generate the hash and save it on the mongodb compass on user table.

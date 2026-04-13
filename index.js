@@ -33,7 +33,6 @@ mongoose.connect(process.env.MONGODB_URL)
 
 
 
-
 //application routes
 app.use("/categorie", categorieHandler);
 app.use("/product",productHandler);
